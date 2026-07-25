@@ -1,0 +1,39 @@
+body {
+    background-color: #efefef;
+}
+
+.checkbox-size {
+    width: 2.6em !important;
+    height: 1.3em !important;
+}
+
+.fs-7 {
+    font-size: .9rem !important;
+}
+
+.mlr-1 {
+    margin-left: .5em;
+    margin-right: 1.2em;
+}
+
+.ml-1 {
+    margin-left: .8em;
+}
+
+.copy-code {
+    top: 2.5px;
+    right: 2.5px;
+    font-size: .8em;
+    opacity: 0;
+    transition: opacity .35s;
+}
+
+.copy-box:hover>.copy-code {
+    opacity: .5;
+}
+
+@media screen and (max-width: 768px) {
+    .row-column-reverse {
+        flex-direction: column-reverse;
+    }
+}

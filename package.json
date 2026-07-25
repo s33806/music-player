@@ -1,0 +1,48 @@
+{
+  "name": "xf-muisc-player",
+  "version": "1.0.0",
+  "description": "小枫音乐播放器：基于 Lit、Howler 和 Web Components 开发的响应式 HTML5 音乐播放器插件，支持云端与本地歌单、歌词同步、主题扩展及完整实例 API。",
+  "type": "module",
+  "main": "./music-player.esm.js",
+  "module": "./music-player.esm.js",
+  "browser": "./music-player.esm.js",
+  "unpkg": "./music-player.min.js",
+  "jsdelivr": "./music-player.min.js",
+  "types": "./index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "import": "./music-player.esm.js",
+      "default": "./music-player.esm.js"
+    },
+    "./iife": "./music-player.min.js",
+    "./legacy": "./old-music-player.min.js",
+    "./plugin/*": "./plugin/*"
+  },
+  "sideEffects": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/s33806/music-player.git"
+  },
+  "bugs": {
+    "url": "https://github.com/s33806/music-player/issues"
+  },
+  "homepage": "https://musicplayer.xfyun.club",
+  "author": "小枫 <1809185784@qq.com>",
+  "keywords": [
+    "HTML5 音乐播放器",
+    "网页音乐播放器",
+    "音乐播放器插件",
+    "html5",
+    "music-player",
+    "audio-player",
+    "web-components",
+    "lit",
+    "howler",
+    "lyrics"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  }
+}

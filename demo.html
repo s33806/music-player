@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<link rel="icon" type="image/svg+xml" href="./logo.svg">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<title>music player demo</title>
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		body {
+			background: url('./images/background.jpg') no-repeat;
+			background-size: cover;
+			height: 100vh;
+		}
+	</style>
+</head>
+
+<body>
+	<!-- 代码生成地址(Code generation online): https://musicplayer.xfyun.club/debug/ -->
+	<xf-music-player
+		is-auto-popup="true"
+		autoplay="true"
+		font-name="Google Sans Code"
+		api-url="https://music.api.xfyun.club/api/v1/music/top?platform=netease&topId=3778678"
+	/>
+	<script src="./music-player.min.js"></script>
+	<!-- Cherry Blossom Code -->
+	<script src="./plugin/sakura/sakura.min.js"></script>
+</body>
+
+</html>

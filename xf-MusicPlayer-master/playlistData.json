@@ -1,0 +1,26 @@
+[
+    {
+        "id": "1",
+        "name": "我的一个道姑娘",
+        "artistsname": "双笙（陈元汐）",
+        "picurl": "./musicMp3/01.jpg",
+        "url": "./musicMp3/01.mp3",
+        "musicDuration": "04:44"
+    },
+    {
+        "id": "2",
+        "name": "坏女孩",
+        "artistsname": "星月酱",
+        "picurl": "./musicMp3/02.jpg",
+        "url": "./musicMp3/02.mp3",
+        "musicDuration": "03:42"
+    },
+    {
+        "id": "3",
+        "name": "春泥",
+        "artistsname": "1个球",
+        "picurl": "./musicMp3/03.jpg",
+        "url": "./musicMp3/03.mp3",
+        "musicDuration": "03:23"
+    }
+]

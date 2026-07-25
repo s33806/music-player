@@ -1,0 +1,7 @@
+node_modules
+xf-MusicPlayer-master
+.github
+.vscode
+*.log
+.env
+README-dev.md

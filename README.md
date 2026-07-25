@@ -11,7 +11,7 @@ A responsive HTML5 music player built with Lit Web Components, Howler, and Zusta
 npm 安装 / npm install:
 
 ```bash
-npm install xf-muisc-player
+npm install xf-music-player
 ```
 
 ## 中文
@@ -53,17 +53,17 @@ package/
 jsDelivr 可作为 npm CDN 备用线路：
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/xf-muisc-player@1.0.0/music-player.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xf-music-player@1.0.0/music-player.min.js"></script>
 ```
 
 ### npm / ESM
 
 ```bash
-npm install xf-muisc-player
+npm install xf-music-player
 ```
 
 ```ts
-import { MusicPlayer } from 'xf-muisc-player'
+import { MusicPlayer } from 'xf-music-player'
 
 const player = new MusicPlayer({
   language: 'zh',
@@ -82,7 +82,7 @@ player.setVolume(0.8)
 
 ```ts
 if (typeof window !== 'undefined') {
-  const { MusicPlayer } = await import('xf-muisc-player')
+  const { MusicPlayer } = await import('xf-music-player')
   const player = new MusicPlayer()
 }
 ```
@@ -92,14 +92,14 @@ if (typeof window !== 'undefined') {
 兼容检测插件应放在播放器之前：
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/xf-muisc-player@1.0.0/plugin/ie-out/index.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/xf-muisc-player@1.0.0/music-player.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xf-music-player@1.0.0/plugin/ie-out/index.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xf-music-player@1.0.0/music-player.min.js"></script>
 ```
 
 樱花效果插件可独立使用：
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/xf-muisc-player@1.0.0/plugin/sakura/sakura.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xf-music-player@1.0.0/plugin/sakura/sakura.min.js"></script>
 ```
 
 ### 浏览器要求
@@ -138,17 +138,17 @@ Use the Xiao Feng Music Player static CDN in mainland China:
 Use jsDelivr as an npm CDN alternative:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/xf-muisc-player@1.0.0/music-player.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xf-music-player@1.0.0/music-player.min.js"></script>
 ```
 
 ### npm / ESM
 
 ```bash
-npm install xf-muisc-player
+npm install xf-music-player
 ```
 
 ```ts
-import { MusicPlayer } from 'xf-muisc-player'
+import { MusicPlayer } from 'xf-music-player'
 
 const player = new MusicPlayer({
   language: 'en',
@@ -168,14 +168,14 @@ The runtime requires browser APIs such as `window`, `document`, Web Components, 
 Load the compatibility detector before the player bundle:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/xf-muisc-player@1.0.0/plugin/ie-out/index.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/xf-muisc-player@1.0.0/music-player.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xf-music-player@1.0.0/plugin/ie-out/index.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xf-music-player@1.0.0/music-player.min.js"></script>
 ```
 
 The sakura effect can be loaded independently:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/xf-muisc-player@1.0.0/plugin/sakura/sakura.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xf-music-player@1.0.0/plugin/sakura/sakura.min.js"></script>
 ```
 
 ### Browser requirements

@@ -32,8 +32,6 @@ package/
 └── xf-MusicPlayer-master/             # 旧版播放器归档
 ```
 
-`package.json` 的 `main`、`module`、`exports` 和 `types` 会在构建时自动生成。运行文件使用固定名称，npm 包版本仍由 `VITE_VERSION` 控制；生产环境建议锁定 npm 版本，避免 CDN 自动升级造成行为变化。
-
 ### CDN 引入
 
 中国大陆推荐使用小枫音乐播放器静态 CDN：

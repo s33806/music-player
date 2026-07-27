@@ -29,7 +29,7 @@ package/
 ├── plugin/
 │   ├── ie-out/index.js               # 旧浏览器检测插件
 │   └── sakura/sakura.min.js          # 樱花漂浮效果插件
-└── xf-MusicPlayer-master/             # 旧版播放器归档
+└── 
 ```
 
 ### CDN 引入

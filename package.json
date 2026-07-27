@@ -1,6 +1,6 @@
 {
   "name": "xf-music-player",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "小枫音乐播放器：基于 Lit、Howler 和 Web Components 开发的响应式 HTML5 音乐播放器插件，支持云端与本地歌单、歌词同步、主题扩展及完整实例 API。",
   "type": "module",
   "main": "./music-player.esm.js",

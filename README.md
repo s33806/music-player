@@ -53,7 +53,7 @@ package/
 jsDelivr 可作为 npm CDN 备用线路：
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/xf-music-player@1.0.0/music-player.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xf-music-player@1.0.1/music-player.min.js"></script>
 ```
 
 ### npm / ESM
@@ -92,14 +92,14 @@ if (typeof window !== 'undefined') {
 兼容检测插件应放在播放器之前：
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/xf-music-player@1.0.0/plugin/ie-out/index.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/xf-music-player@1.0.0/music-player.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xf-music-player@1.0.1/plugin/ie-out/index.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xf-music-player@1.0.1/music-player.min.js"></script>
 ```
 
 樱花效果插件可独立使用：
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/xf-music-player@1.0.0/plugin/sakura/sakura.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xf-music-player@1.0.1/plugin/sakura/sakura.min.js"></script>
 ```
 
 ### 浏览器要求
@@ -138,7 +138,7 @@ Use the Xiao Feng Music Player static CDN in mainland China:
 Use jsDelivr as an npm CDN alternative:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/xf-music-player@1.0.0/music-player.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xf-music-player@1.0.1/music-player.min.js"></script>
 ```
 
 ### npm / ESM
@@ -168,14 +168,14 @@ The runtime requires browser APIs such as `window`, `document`, Web Components, 
 Load the compatibility detector before the player bundle:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/xf-music-player@1.0.0/plugin/ie-out/index.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/xf-music-player@1.0.0/music-player.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xf-music-player@1.0.1/plugin/ie-out/index.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xf-music-player@1.0.1/music-player.min.js"></script>
 ```
 
 The sakura effect can be loaded independently:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/xf-music-player@1.0.0/plugin/sakura/sakura.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xf-music-player@1.0.1/plugin/sakura/sakura.min.js"></script>
 ```
 
 ### Browser requirements

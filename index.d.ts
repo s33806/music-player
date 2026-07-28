@@ -76,6 +76,7 @@ export interface MusicPlayerAttributes {
 	isAutoPopup?: boolean
 	isAutoPlaylist?: boolean
 	colorfulLyric?: boolean
+	audioVisualizer?: boolean
 	lazyLoadTimer?: number
 	lazyLoadAnimationUrl?: string
 	mode?: MusicPlayerMode
@@ -88,6 +89,16 @@ export interface MusicPlayerAttributes {
 	volume?: number
 	playlist?: SongInfo[]
 	audioProvider?: MusicAudioProvider
+}
+
+/**
+ * 播放器自定义元素公开属性。
+ * HTML 字符串属性会由 Lit 转换为对应的运行时配置；复杂的 playlist 和 audioProvider
+ * 推荐通过 `new MusicPlayer({ attributes })` 传入。
+ */
+export interface MusicPlayerElement extends HTMLElement {
+	/** 是否启用交互式 Canvas 音频波形进度条，默认关闭。 */
+	audioVisualizer?: boolean | string
 }
 
 /** Lit 更新阶段传递的属性变更集合。 */
@@ -223,6 +234,6 @@ export declare class MusicPlayer {
 
 declare global {
 	interface HTMLElementTagNameMap {
-		'xf-music-player': HTMLElement
+		'xf-music-player': MusicPlayerElement
 	}
 }

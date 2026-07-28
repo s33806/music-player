@@ -29,7 +29,6 @@ package/
 ├── plugin/
 │   ├── ie-out/index.js               # 旧浏览器检测插件
 │   └── sakura/sakura.min.js          # 樱花漂浮效果插件
-└── 
 ```
 
 ### CDN 引入
@@ -44,9 +43,12 @@ package/
   mode="cloud"
   api-url="https://music.api.xfyun.club/api/v1/music/top?platform=netease&topId=3778678"
   theme="xf-original-theme"
+  audio-visualizer="true"
   remember-playback="true"
-></xf-music-player>
+/>
 ```
+
+`audio-visualizer` 默认关闭。设置为 `true` 后，Canvas 波形本身就是歌曲进度条，会以不同透明度区分已播放和未播放区域；仅当 PC 鼠标直接经过进度轨道，或移动端触碰、点击、拖动进度条时，才临时显示普通细线进度条。底部歌词条会同步显示底部对齐的柱状音频背景；开启多彩歌词后，每个柱状线会使用稳定分色。波形读取同一分析节点的时间域与频域数据，在高频能量增强时平滑放大波幅，不使用镜像、随机数或模拟动画。若跨域音频响应未返回允许当前站点访问的 `Access-Control-Allow-Origin`，播放器会保留静态进度条且不影响播放。普通细线进度条展示期间会暂停波形采样和 Canvas 动画，降低资源消耗。
 
 jsDelivr 可作为 npm CDN 备用线路：
 
@@ -113,9 +115,6 @@ if (typeof window !== 'undefined') {
 - `old-music-player.min.js`: compatibility entry for legacy player initialization.
 - `plugin/ie-out/index.js`: legacy-browser detection and upgrade redirect.
 - `plugin/sakura/sakura.min.js`: optional falling-sakura page effect.
-- `xf-MusicPlayer-master/`: archived legacy player source and examples.
-
-Pin an exact package version in production so CDN updates cannot unexpectedly change runtime behavior.
 
 ### CDN usage
 
@@ -129,9 +128,12 @@ Use the Xiao Feng Music Player static CDN in mainland China:
   mode="cloud"
   api-url="https://music.api.xfyun.club/api/v1/music/top?platform=netease&topId=3778678"
   theme="xf-original-theme"
+  audio-visualizer="true"
   remember-playback="true"
-></xf-music-player>
+/>
 ```
+
+`audio-visualizer` is disabled by default. Set it to `true` to make the Canvas waveform act as the progress bar itself, using opacity to distinguish played and unplayed regions. The thin regular progress bar appears only while a desktop pointer is directly over the seek track, or while a touch user taps or drags it. The bottom lyric bar also renders bottom-aligned animated audio bars; when colorful lyrics are enabled, each bar uses a stable distinct color. The player reads time-domain and frequency-domain data from the same analyser and smoothly increases amplitude when treble energy rises. It does not use mirroring, random values, or simulated animation. Cross-origin audio must return an `Access-Control-Allow-Origin` header that permits the host page; otherwise the regular progress bar remains available without affecting playback. Sampling and animation stop while the thin regular progress bar is shown, paused, outside the viewport, in a background tab, or under reduced-motion preferences. Active rendering is capped at 30 FPS on desktop and 24 FPS on touch devices.
 
 Use jsDelivr as an npm CDN alternative:
 

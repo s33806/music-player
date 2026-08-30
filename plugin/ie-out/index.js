@@ -6,7 +6,6 @@
 
   /**
    * 判断当前地址是否已经是升级提示页，避免旧浏览器进入无限跳转。
-   *
    * @returns {boolean} 已经位于升级提示页时返回 true。
    */
   function isUpgradePage() {
@@ -23,7 +22,6 @@
 
   /**
    * 安全创建测试元素。部分极旧环境可能不支持 createElement，统一兜底为 null。
-   *
    * @returns {HTMLElement|null} 测试元素。
    */
   function createProbeElement() {
@@ -36,7 +34,6 @@
 
   /**
    * 判断是否为明确不支持的旧浏览器。
-   *
    * @returns {boolean} 当前浏览器属于 IE 或旧 Edge Legacy 时返回 true。
    */
   function isLegacyBrowser() {
@@ -49,7 +46,6 @@
 
   /**
    * 检测播放器运行所需的现代 Web 能力。
-   *
    * @returns {boolean} 缺失任一关键能力时返回 true。
    */
   function isMissingRequiredFeature() {

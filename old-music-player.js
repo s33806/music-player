@@ -10,13 +10,13 @@ window.addEventListener('DOMContentLoaded', function () {
 		els = document.querySelectorAll('.xf-MusicPlayer')
 	}
 
-	if (els.lengt === 0) {
+	if (els.length === 0) {
 		console.warn('未找到音乐播放器标签元素/No music player found tab element')
 		return
 	}
 
 	// 获取播放器元素
-	player = els[0]
+	var player = els[0]
 
 	// 接口地址
 	var base_api_url = 'https://music.api.xfyun.club/api/v1/music'
@@ -69,7 +69,7 @@ window.addEventListener('DOMContentLoaded', function () {
 				}
 			},
 			// 是否自动淡出播放器
-			isAutoPopup: player.hasAttribute('data-fadeOutAutoplay') ? true : false,
+			isAutoPopup: player.hasAttribute('data-fadeOutAutoplay'),
 			// 主题名称
 			themeName: function () {
 				var theme = player.getAttribute('data-themeColor')
@@ -88,11 +88,9 @@ window.addEventListener('DOMContentLoaded', function () {
 					case 'xf-dark': return 'xf-dark-theme'
 					default: return 'xf-original-theme'
 				}
-
-				return theme
 			},
 			// 是否随机播放
-			random: player.hasAttribute('data-random') ? true : false,
+			random: player.hasAttribute('data-random'),
 			// 距离底部距离
 			bottomHeight: function () {
 				var bottomHeight = player.getAttribute('data-bottomHeight')

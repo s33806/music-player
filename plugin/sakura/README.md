@@ -36,4 +36,5 @@
 
 - 插件会创建 `#canvas_sakura` 元素，避免业务页面复用同名 ID。
 - canvas 使用 `pointer-events: none`，不会拦截播放器或页面点击。
+- 监听 `resize` 事件，不覆盖页面已有的 `window.onresize`。
 - 如果页面性能预算较紧，建议只在活动页、节日主题或装饰性页面开启。

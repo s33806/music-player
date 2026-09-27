@@ -2,6 +2,8 @@
 
 小枫音乐播放器是一款基于 Lit Web Components、Howler 和 Zustand 开发的响应式、高性能 HTML5 音乐播放器插件。它支持云端与本地歌单、歌词同步、记忆播放、单曲循环与随机播放、自定义主题、国际化、移动端适配及完整实例 API，可通过 npm、ES Module 或原生 `<script>` 快速接入网页。
 
+当前版本：`1.0.5`。一个页面使用一个活跃播放器宿主。
+
 A responsive HTML5 music player built with Lit Web Components, Howler, and Zustand. It supports cloud and local playlists, synchronized lyrics, playback memory, multiple play modes, custom themes, internationalization, and a complete instance API.
 
 - 官网 / Website: <https://musicplayer.xfyun.club>
@@ -48,7 +50,7 @@ package/
 />
 ```
 
-`audio-visualizer` 默认关闭。设置为 `true` 后，Canvas 波形本身就是歌曲进度条，会以不同透明度区分已播放和未播放区域；仅当 PC 鼠标直接经过进度轨道，或移动端触碰、点击、拖动进度条时，才临时显示普通细线进度条。底部歌词条会同步显示底部对齐的柱状音频背景；开启多彩歌词后，每个柱状线会使用稳定分色。波形读取同一分析节点的时间域与频域数据，在高频能量增强时平滑放大波幅，不使用镜像、随机数或模拟动画。若跨域音频响应未返回允许当前站点访问的 `Access-Control-Allow-Origin`，播放器会保留静态进度条且不影响播放。普通细线进度条展示期间会暂停波形采样和 Canvas 动画，降低资源消耗。
+`audio-visualizer` 默认关闭。设置为 `true` 后，Canvas 波形本身就是歌曲进度条，会以不同透明度区分已播放和未播放区域；仅当 PC 鼠标直接经过进度轨道，或移动端触碰、点击、拖动进度条时，才临时显示普通细线进度条。底部歌词条会同步显示底部对齐的柱状音频背景，并使用半透明主题色而非封面背景；活动歌词通过加粗和文字阴影提高清晰度，不增加实底遮罩。仅开启多彩歌词时，底部背景使用封面取色生成的半透明 RGBA；跨域封面未开放 CORS 时回退默认主题背景，不直接显示封面图片；同时开启可视化时，每个柱状线仍使用稳定分色。波形读取同一分析节点的时间域与频域数据，在高频能量增强时平滑放大波幅，不使用镜像、随机数或模拟动画。开启可视化时，跨域音源需返回允许当前站点访问的 `Access-Control-Allow-Origin`；关闭可视化时普通播放不额外要求该响应头。普通细线进度条展示期间会暂停波形采样和 Canvas 动画，降低资源消耗。
 
 jsDelivr 可作为 npm CDN 备用线路：
 

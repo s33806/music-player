@@ -12,7 +12,6 @@ function Sakura(x, y, s, r, fn) {
 
 Sakura.prototype.draw = function (cxt) {
 	cxt.save();
-	const xc = 40 * this.s / 4;
 	cxt.translate(this.x, this.y);
 	cxt.rotate(this.r);
 	cxt.drawImage(img, 0, 0, 40 * this.s, 40 * this.s);
@@ -24,7 +23,6 @@ Sakura.prototype.update = function () {
 	this.y = this.fn.y(this.y, this.y);
 	this.r = this.fn.r(this.r);
 	if (this.x > window.innerWidth || this.x < 0 || this.y > window.innerHeight || this.y < 0) {
-		this.r = getRandom('fnr');
 		if (Math.random() > 0.4) {
 			this.x = getRandom('x');
 			this.y = 0;
@@ -39,9 +37,9 @@ Sakura.prototype.update = function () {
 	}
 };
 
-SakuraList = function () {
+function SakuraList() {
 	this.list = [];
-};
+}
 SakuraList.prototype.push = function (sakura) {
 	this.list.push(sakura);
 };
@@ -57,13 +55,6 @@ SakuraList.prototype.draw = function (cxt) {
 		this.list[i].draw(cxt);
 	}
 };
-SakuraList.prototype.get = function (i) {
-	return this.list[i];
-};
-SakuraList.prototype.size = function () {
-	return this.list.length;
-};
-
 function getRandom(option) {
 	let ret, random;
 	switch (option) {
@@ -103,11 +94,6 @@ function getRandom(option) {
 
 function startSakura() {
 
-	requestAnimationFrame = window.requestAnimationFrame ||
-		window.mozRequestAnimationFrame ||
-		window.webkitRequestAnimationFrame ||
-		window.msRequestAnimationFrame ||
-		window.oRequestAnimationFrame;
 	let canvas = document.createElement('canvas'),
 		cxt;
 	staticx = true;
@@ -135,19 +121,20 @@ function startSakura() {
 		sakura.draw(cxt);
 		sakuraList.push(sakura);
 	}
-	stop = requestAnimationFrame(function () {
+	stop = window.requestAnimationFrame(function animate() {
 		cxt.clearRect(0, 0, canvas.width, canvas.height);
 		sakuraList.update();
 		sakuraList.draw(cxt);
-		stop = requestAnimationFrame(arguments.callee);
+		stop = window.requestAnimationFrame(animate);
 	});
 }
 
-window.onresize = function () {
+window.addEventListener('resize', function () {
 	const canvasSnow = document.getElementById('canvas_sakura');
+	if (!canvasSnow) return;
 	canvasSnow.width = window.innerWidth;
 	canvasSnow.height = window.innerHeight;
-};
+});
 
 img.onload = function () {
 	startSakura();

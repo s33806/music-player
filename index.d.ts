@@ -27,6 +27,8 @@ export interface SongInfo {
 	artist?: string
 	album?: string
 	cover?: string
+	/** blob URL 或不带后缀地址的格式提示。 */
+	format?: string
 	src?: string | null
 	duration?: number
 	lyrics?: string | LyricItem[]
@@ -237,3 +239,14 @@ declare global {
 		'xf-music-player': MusicPlayerElement
 	}
 }
+
+/** 音频基础信息、统一标签、原始标签、封面字节及解析警告。 */
+export type AudioMetadata = import('music-metadata').IAudioMetadata
+export interface AudioFileResult {
+	song: SongInfo
+	metadata: AudioMetadata
+	/** 停止使用歌曲并卸载播放器后调用，幂等释放音频和封面 URL。 */
+	dispose(): void
+}
+export function readAudioMetadata(input: Blob | Uint8Array | ArrayBuffer): Promise<AudioMetadata>
+export function readAudioFile(file: File): Promise<AudioFileResult>

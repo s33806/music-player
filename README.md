@@ -2,7 +2,7 @@
 
 小枫音乐播放器是一款基于 Lit Web Components、Howler 和 Zustand 开发的响应式、高性能 HTML5 音乐播放器插件。它支持云端与本地歌单、歌词同步、记忆播放、单曲循环与随机播放、自定义主题、国际化、移动端适配及完整实例 API，可通过 npm、ES Module 或原生 `<script>` 快速接入网页。
 
-当前版本：`1.0.5`。一个页面使用一个活跃播放器宿主。
+当前版本：`1.0.6`。
 
 A responsive HTML5 music player built with Lit Web Components, Howler, and Zustand. It supports cloud and local playlists, synchronized lyrics, playback memory, multiple play modes, custom themes, internationalization, and a complete instance API.
 
@@ -15,6 +15,32 @@ npm 安装 / npm install:
 ```bash
 npm install xf-music-player
 ```
+
+## 1.0.6：音频文件信息读取
+
+- 新增 FLAC、WAV、AIFF / AIFF-C 的文件读取与元数据解析，MP3、M4A、Ogg 等已有音源仍沿用原播放链路。
+- 使用统一解析入口获取 `format`（时长、采样率、声道、位深、码率等）、`common`（歌名、歌手、专辑、歌词、封面等）、`native` 原始标签及 `quality.warnings`；文件未携带的可选信息保持缺失，不编造数据。
+- `readAudioMetadata` 按文件内容识别格式，接收 `File` / `Blob` / `ArrayBuffer` / `Uint8Array`；Blob 使用分片读取，不为解析标签复制整首音频。空/非音频输入、截断文件头或解析器报错时抛出包含 `cause` 的错误；可读取但不完整的标签通过 `quality.warnings` 返回。元数据解析不执行全轨解码或完整性校验。
+- `readAudioFile` 将标签转换为可直接传入 `setPlaylist` 的歌曲，保留完整元数据并返回幂等 `dispose()`；使用结束后主动释放音频和封面 Blob URL。无标签时使用文件名作歌名；无时间戳歌词保留原文，不生成虚假同步时间。
+- 文件解析与播放解码分开：FLAC/WAV/AIFF 标签读取不依赖浏览器音频解码器；实际播放取决于浏览器支持的编码。AIFF/AIF/AIFF-C 补充原生能力检测，支持时进入原 Howler 播放链路。未内置转码器。
+- 歌词阴影统一为更紧凑的双层阴影：黑色 `.98` + 白色 `.35`、模糊半径 `1px`；保持现有字色、背景和歌词动效。
+
+```ts
+import { MusicPlayer, readAudioFile, readAudioMetadata } from 'xf-music-player'
+
+// file 来自 <input type="file" accept="audio/*,.flac,.wav,.aif,.aiff,.aifc">
+const loaded = await readAudioFile(file)
+const player = new MusicPlayer({ attributes: { mode: 'local', playlist: [loaded.song] } })
+console.log(loaded.metadata.format, loaded.metadata.common, loaded.metadata.quality.warnings)
+// 只读元数据，不创建 URL：await readAudioMetadata(file)
+// script 接入同样使用 XfMusicPlayer.readAudioFile / XfMusicPlayer.readAudioMetadata。
+
+// 在页面卸载/业务销毁时执行；不要在音频仍被使用时 dispose。
+await player.destroy()
+loaded.dispose()
+```
+
+对于无后缀 URL 或业务自行创建的 Blob URL，可在歌曲上设置 `format: 'flac' | 'wav' | 'aiff'` 等格式提示。解析 API 只读取显式传入的文件；普通云端播放不额外下载整首音频来扫描标签。
 
 ## 中文
 

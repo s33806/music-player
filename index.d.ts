@@ -129,6 +129,7 @@ export interface CreateMusicPlayerOptions {
 
 /** 销毁播放器时可传入的选项。 */
 export interface DestroyMusicPlayerOptions {
+	/** 可选的当前宿主标签匹配检查；不会查找或销毁其他控制器的实例。 */
 	tagName?: string
 	timer?: number
 	beforeDestroy?: (element: HTMLElement | null) => void | Promise<void>
@@ -230,7 +231,7 @@ export declare class MusicPlayer {
 	setPlaylist(playlist: SongInfo[], currentIndex?: number): this
 	/** 局部更新播放器配置。 */
 	setConfig(config: Partial<MusicPlayerAttributes>): this
-	/** 销毁播放器并释放监听器和音频资源。 */
+	/** 销毁自身宿主并释放资源；重复调用复用同一 Promise，重建后请保存新控制器。 */
 	destroy(options?: DestroyMusicPlayerOptions): Promise<void>
 }
 

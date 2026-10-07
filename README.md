@@ -1,211 +1,223 @@
-# 小枫音乐播放器 / XF Music Player
+# 小枫音乐播放器
 
-小枫音乐播放器是一款基于 Lit Web Components、Howler 和 Zustand 开发的响应式、高性能 HTML5 音乐播放器插件。它支持云端与本地歌单、歌词同步、记忆播放、单曲循环与随机播放、自定义主题、国际化、移动端适配及完整实例 API，可通过 npm、ES Module 或原生 `<script>` 快速接入网页。
+**简体中文** · [English](./README.en.md)
 
-当前版本：`1.0.6`。
+基于 Web Components 的 HTML5 音乐播放器。既能通过一个 `<script>` 接入普通网页，也能作为 ESM 模块用于 Vue、React 等项目；播放器样式通过 Shadow DOM 隔离。
 
-A responsive HTML5 music player built with Lit Web Components, Howler, and Zustand. It supports cloud and local playlists, synchronized lyrics, playback memory, multiple play modes, custom themes, internationalization, and a complete instance API.
+当前版本：`1.0.7`。
 
-- 官网 / Website: <https://musicplayer.xfyun.club>
-- GitHub: <https://github.com/s33806/music-player>
-- Gitee: <https://gitee.com/xfwlclub/xf-MusicPlayer/>
+[官网](https://musicplayer.xfyun.club) · [接入文档](https://musicplayer.xfyun.club/docs/) · [在线调试](https://musicplayer.xfyun.club/debug/) · [GitHub](https://github.com/s33806/music-player) · [Gitee](https://gitee.com/xfwlclub/xf-MusicPlayer/)
 
-npm 安装 / npm install:
+## 核心优势
 
-```bash
-npm install xf-music-player
-```
+| 功能 | 可以做什么 |
+| --- | --- |
+| 框架无关的接入方式 | 原生 HTML 标签、JavaScript 实例、npm / ESM；无需绑定特定前端框架。 |
+| 灵活的数据源 | 云端 `apiUrl`、本地 `playlist`、自定义 `audioProvider`，接入现有音乐接口。 |
+| 真实音频可视化 | 可选 Canvas 波形进度条与歌词柱状背景，读取实际音频分析数据，支持拖动进度。 |
+| 歌词与主题 | 同步歌词、全屏歌词、点击歌词跳转、封面取色、多彩歌词及内置/自定义主题。 |
+| 本地音频信息读取 | 统一读取 FLAC、WAV、AIFF / AIFF-C、MP3、M4A、Ogg 等文件的音频参数、标签、封面和歌词。 |
+| 播放状态与生命周期 | 记忆当前歌曲和进度，支持顺序/单曲/随机播放、中英界面、公开控制 API 与异步销毁。 |
 
-## 1.0.6：音频文件信息读取
+## 快速开始
 
-- 新增 FLAC、WAV、AIFF / AIFF-C 的文件读取与元数据解析，MP3、M4A、Ogg 等已有音源仍沿用原播放链路。
-- 使用统一解析入口获取 `format`（时长、采样率、声道、位深、码率等）、`common`（歌名、歌手、专辑、歌词、封面等）、`native` 原始标签及 `quality.warnings`；文件未携带的可选信息保持缺失，不编造数据。
-- `readAudioMetadata` 按文件内容识别格式，接收 `File` / `Blob` / `ArrayBuffer` / `Uint8Array`；Blob 使用分片读取，不为解析标签复制整首音频。空/非音频输入、截断文件头或解析器报错时抛出包含 `cause` 的错误；可读取但不完整的标签通过 `quality.warnings` 返回。元数据解析不执行全轨解码或完整性校验。
-- `readAudioFile` 将标签转换为可直接传入 `setPlaylist` 的歌曲，保留完整元数据并返回幂等 `dispose()`；使用结束后主动释放音频和封面 Blob URL。无标签时使用文件名作歌名；无时间戳歌词保留原文，不生成虚假同步时间。
-- 文件解析与播放解码分开：FLAC/WAV/AIFF 标签读取不依赖浏览器音频解码器；实际播放取决于浏览器支持的编码。AIFF/AIF/AIFF-C 补充原生能力检测，支持时进入原 Howler 播放链路。未内置转码器。
-- 歌词阴影统一为更紧凑的双层阴影：黑色 `.98` + 白色 `.35`、模糊半径 `1px`；保持现有字色、背景和歌词动效。
+以下 HTML 和 npm 示例是两种独立接入方式，选择一种即可。同一页面只保留一个活跃播放器。
 
-```ts
-import { MusicPlayer, readAudioFile, readAudioMetadata } from 'xf-music-player'
+### 方式一：HTML / CDN
 
-// file 来自 <input type="file" accept="audio/*,.flac,.wav,.aif,.aiff,.aifc">
-const loaded = await readAudioFile(file)
-const player = new MusicPlayer({ attributes: { mode: 'local', playlist: [loaded.song] } })
-console.log(loaded.metadata.format, loaded.metadata.common, loaded.metadata.quality.warnings)
-// 只读元数据，不创建 URL：await readAudioMetadata(file)
-// script 接入同样使用 XfMusicPlayer.readAudioFile / XfMusicPlayer.readAudioMetadata。
-
-// 在页面卸载/业务销毁时执行；不要在音频仍被使用时 dispose。
-await player.destroy()
-loaded.dispose()
-```
-
-对于无后缀 URL 或业务自行创建的 Blob URL，可在歌曲上设置 `format: 'flac' | 'wav' | 'aiff'` 等格式提示。解析 API 只读取显式传入的文件；普通云端播放不额外下载整首音频来扫描标签。
-
-## 中文
-
-### npm 包内容
-
-```text
-package/
-├── package.json                      # npm 包说明、入口与导出配置
-├── README.md                         # 中文优先的使用介绍
-├── index.d.ts                        # TypeScript 类型声明
-├── music-player.min.js                # IIFE，适合 script/CDN
-├── music-player.esm.js                # ESM，适合现代构建工具
-├── old-music-player.min.js           # 旧版调用兼容入口
-├── plugin/
-│   ├── ie-out/index.js               # 旧浏览器检测插件
-│   └── sakura/sakura.min.js          # 樱花漂浮效果插件
-```
-
-### CDN 引入
-
-中国大陆推荐使用小枫音乐播放器静态 CDN：
+将下面代码放入页面。自定义标签使用完整的结束标签。
 
 ```html
-<script src="https://player.xfyun.club/js/music-player/music-player.min.js"></script>
-
 <xf-music-player
   language="zh"
   mode="cloud"
   api-url="https://music.api.xfyun.club/api/v1/music/top?platform=netease&topId=3778678"
   theme="xf-original-theme"
-  audio-visualizer="true"
+  is-auto-popup="true"
   remember-playback="true"
-/>
+></xf-music-player>
+<script defer src="https://player.xfyun.club/js/music-player/music-player.min.js"></script>
 ```
 
-`audio-visualizer` 默认关闭。设置为 `true` 后，Canvas 波形本身就是歌曲进度条，会以不同透明度区分已播放和未播放区域；仅当 PC 鼠标直接经过进度轨道，或移动端触碰、点击、拖动进度条时，才临时显示普通细线进度条。底部歌词条会同步显示底部对齐的柱状音频背景，并使用半透明主题色而非封面背景；活动歌词通过加粗和文字阴影提高清晰度，不增加实底遮罩。仅开启多彩歌词时，底部背景使用封面取色生成的半透明 RGBA；跨域封面未开放 CORS 时回退默认主题背景，不直接显示封面图片；同时开启可视化时，每个柱状线仍使用稳定分色。波形读取同一分析节点的时间域与频域数据，在高频能量增强时平滑放大波幅，不使用镜像、随机数或模拟动画。开启可视化时，跨域音源需返回允许当前站点访问的 `Access-Control-Allow-Origin`；关闭可视化时普通播放不额外要求该响应头。普通细线进度条展示期间会暂停波形采样和 Canvas 动画，降低资源消耗。
-
-jsDelivr 可作为 npm CDN 备用线路：
+也可将脚本地址替换为 npm CDN：
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/xf-music-player@latest/music-player.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/xf-music-player@latest/music-player.min.js"></script>
 ```
 
-### npm / ESM
+只选择一个脚本地址，避免重复加载。示例未开启自动播放，由用户点击播放。
+
+### 方式二：npm / ESM
 
 ```bash
 npm install xf-music-player
 ```
 
+在浏览器客户端执行；将 `/audio/example.mp3` 替换为项目中实际存在的音频地址。
+
 ```ts
 import { MusicPlayer } from 'xf-music-player'
 
-const player = new MusicPlayer({
+let player = new MusicPlayer({
   language: 'zh',
   attributes: {
-    mode: 'cloud',
-    apiUrl: 'https://music.api.xfyun.club/api/v1/music/top?platform=netease&topId=3778678',
-    theme: 'xf-original-theme',
-    rememberPlayback: true
+    mode: 'local',
+    isAutoPopup: true,
+    rememberPlayback: true,
+    playlist: [{
+      "id": "demo-1",
+      "title": "示例歌曲",
+      "src": "/audio/example.mp3",
+      "artist": "示例歌手",
+      "album": "示例专辑",
+      "cover": "/img/half.jpg",
+      "duration": 28,
+      "lyrics": "[00:00.00]第一行歌词\n[00:05.00]第二行歌词"
+    }]
   }
 })
-
-player.setVolume(0.8)
 ```
 
-播放器运行时依赖 `window`、`document`、Web Components 和 HTML5 Audio，应在浏览器客户端加载。Nuxt、Next.js 等 SSR 项目请在客户端生命周期中动态导入：
+`language` 属于构造参数；`theme`、`playlist`、`apiUrl` 等配置放在 `attributes` 中。Nuxt、Next.js 等 SSR 项目应在客户端生命周期中使用 `await import('xf-music-player')`，并在卸载时销毁实例。
+
+## 功能示例
+
+### 音频可视化与主题
+
+以下配置和自定义接口示例沿用上面的 `player` 实例。
 
 ```ts
-if (typeof window !== 'undefined') {
-  const { MusicPlayer } = await import('xf-music-player')
-  const player = new MusicPlayer()
+player.setConfig({
+  audioVisualizer: true,
+  colorfulLyric: true,
+  theme: 'xf-sky-theme'
+})
+```
+
+- `audioVisualizer` 默认关闭；启用后，波形可作为进度条使用，歌词区域同步展示音频柱状背景。
+- 仅启用多彩歌词时，背景使用封面取色生成的半透明 RGBA；同时开启可视化时，歌词背景跟随主题。
+- 跨域音源在可视化模式下需要允许当前站点的 CORS 响应头。音源未开放 CORS 时，可关闭可视化，使用普通播放链路。
+- 跨域封面未开放像素读取权限时，取色背景回退为默认主题色。
+
+### 接入自己的音乐接口
+
+`audioProvider` 优先于内置云端接口。将 `/api/music/playlist` 替换为自己的地址，并传递 `signal`，让播放器销毁或数据源变化时可以取消过期请求。
+
+```ts
+player.setConfig({
+  audioProvider: async ({ signal }) => {
+    const response = await fetch('/api/music/playlist', { signal })
+    if (!response.ok) throw new Error(`歌单请求失败：${response.status}`)
+    return response.json()
+  }
+})
+```
+
+接口可返回歌曲数组，也可使用以下统一响应结构；`src` 指向可播放的音频资源。
+
+```json
+{
+  "code": 200,
+  "msg": "success",
+  "data": [{
+    "id": "demo-1",
+    "title": "示例歌曲",
+    "src": "/audio/example.mp3",
+    "artist": "示例歌手",
+    "album": "示例专辑",
+    "cover": "/img/half.jpg",
+    "duration": 28,
+    "lyrics": "[00:00.00]第一行歌词\n[00:05.00]第二行歌词"
+  }]
 }
 ```
 
-### 可选插件
+如果接口已经符合该结构，也可以直接使用 `attributes: { mode: 'cloud', apiUrl: '/api/music/playlist' }`，省去自定义函数。
 
-兼容检测插件应放在播放器之前：
+### 读取本地音频、封面和歌词
 
-```html
-<script src="https://cdn.jsdelivr.net/npm/xf-music-player@latest/plugin/ie-out/index.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/xf-music-player@latest/music-player.min.js"></script>
-```
-
-樱花效果插件可独立使用：
-
-```html
-<script src="https://cdn.jsdelivr.net/npm/xf-music-player@latest/plugin/sakura/sakura.min.js"></script>
-```
-
-### 浏览器要求
-
-播放器依赖 Web Components、Shadow DOM、Promise、Symbol、HTML5 Audio 等现代浏览器能力。不支持 Internet Explorer、Edge Legacy，以及缺少上述能力的旧版 WebView、UC、QQ 浏览器和旧版 iOS Safari。可在播放器之前引入 `plugin/ie-out/index.js` 进行兼容检测。
-
-## English
-
-### Distribution files
-
-- `music-player.min.js`: IIFE bundle for direct `<script>` or CDN usage.
-- `music-player.esm.js`: ESM bundle for Vite, Webpack, Rollup, and other modern build tools.
-- `old-music-player.min.js`: compatibility entry for legacy player initialization.
-- `plugin/ie-out/index.js`: legacy-browser detection and upgrade redirect.
-- `plugin/sakura/sakura.min.js`: optional falling-sakura page effect.
-
-### CDN usage
-
-Use the Xiao Feng Music Player static CDN in mainland China:
-
-```html
-<script src="https://player.xfyun.club/js/music-player/music-player.min.js"></script>
-
-<xf-music-player
-  language="en"
-  mode="cloud"
-  api-url="https://music.api.xfyun.club/api/v1/music/top?platform=netease&topId=3778678"
-  theme="xf-original-theme"
-  audio-visualizer="true"
-  remember-playback="true"
-/>
-```
-
-`audio-visualizer` is disabled by default. Set it to `true` to make the Canvas waveform act as the progress bar itself, using opacity to distinguish played and unplayed regions. The thin regular progress bar appears only while a desktop pointer is directly over the seek track, or while a touch user taps or drags it. The bottom lyric bar also renders bottom-aligned animated audio bars; when colorful lyrics are enabled, each bar uses a stable distinct color. The player reads time-domain and frequency-domain data from the same analyser and smoothly increases amplitude when treble energy rises. It does not use mirroring, random values, or simulated animation. Cross-origin audio must return an `Access-Control-Allow-Origin` header that permits the host page; otherwise the regular progress bar remains available without affecting playback. Sampling and animation stop while the thin regular progress bar is shown, paused, outside the viewport, in a background tab, or under reduced-motion preferences. Active rendering is capped at 30 FPS on desktop and 24 FPS on touch devices.
-
-Use jsDelivr as an npm CDN alternative:
-
-```html
-<script src="https://cdn.jsdelivr.net/npm/xf-music-player@latest/music-player.min.js"></script>
-```
-
-### npm / ESM
-
-```bash
-npm install xf-music-player
-```
+这是另一种独立的创建方式，适合文件选择器传入的 `File`。先销毁页面上已有的播放器，再调用它。
 
 ```ts
-import { MusicPlayer } from 'xf-music-player'
+import { MusicPlayer, readAudioFile } from 'xf-music-player'
 
-const player = new MusicPlayer({
-  language: 'en',
-  attributes: {
-    mode: 'cloud',
-    apiUrl: 'https://music.api.xfyun.club/api/v1/music/top?platform=netease&topId=3778678',
-    theme: 'xf-original-theme',
-    rememberPlayback: true
+export async function createFilePlayer(file: File) {
+  const loaded = await readAudioFile(file)
+  console.log(loaded.metadata.format, loaded.metadata.common)
+
+  try {
+    return new MusicPlayer({
+      language: 'zh',
+      attributes: {
+        mode: 'local',
+        rememberPlayback: false,
+        playlist: [loaded.song]
+      },
+      hooks: { afterDestroy: () => loaded.dispose() }
+    })
+  } catch (error) {
+    loaded.dispose()
+    throw error
   }
-})
+}
 ```
 
-The runtime requires browser APIs such as `window`, `document`, Web Components, and HTML5 Audio. Load it dynamically on the client when using an SSR framework.
+在文件选择事件中调用 `const filePlayer = await createFilePlayer(file)`；业务结束时执行 `await filePlayer.destroy()`。示例在销毁后释放音频和封面的临时 URL，并关闭不适合跨页面恢复的 Blob 歌曲记忆。
 
-### Optional plugins
+只需读取信息时，使用 `readAudioMetadata(file)`，无需创建临时 URL。解析支持与播放解码是两回事：尤其 AIFF 的实际播放取决于浏览器编码支持；播放器未内置转码器。普通云端播放不会额外下载整首音频扫描标签。
 
-Load the compatibility detector before the player bundle:
+### 播放控制与页面卸载
 
-```html
-<script src="https://cdn.jsdelivr.net/npm/xf-music-player@latest/plugin/ie-out/index.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/xf-music-player@latest/music-player.min.js"></script>
+| API | 用途 |
+| --- | --- |
+| `player.play()` / `player.pause()` | 播放 / 暂停，建议由用户点击触发。 |
+| `player.prev()` / `player.next()` | 上一首 / 下一首。 |
+| `player.seek(30)` | 跳转到第 30 秒。 |
+| `player.setVolume(0.8)` | 设置音量，范围 `0–1`；iOS 使用系统音量。 |
+| `player.setPlayMode('random')` | 随机播放；也支持 `order`、`single`。 |
+| `player.setPlaylist(songs, 0)` | 替换歌单并选择第一首。 |
+| `player.setConfig({ theme: 'xf-dark-theme' })` | 局部更新配置。 |
+| `await player.destroy()` | 销毁当前实例，清理音频、订阅及交互任务。 |
+
+页面切换需要重建时，先等待旧实例销毁完成，再保存新实例引用。下面的 `player` 沿用 npm 示例，接口地址需替换为自己的地址。
+
+```ts
+async function recreatePlayer() {
+  await player.destroy()
+  player = new MusicPlayer({
+    language: 'zh',
+    attributes: { mode: 'cloud', apiUrl: '/api/music/playlist' }
+  })
+}
 ```
 
-The sakura effect can be loaded independently:
+销毁后的旧控制器应由新实例替代；`mount()` 用于挂载已有元素，不用于重建已销毁的播放器。SPA 路由接入还应取消已退出页面的异步初始化，避免快速切页时重复创建。
 
-```html
-<script src="https://cdn.jsdelivr.net/npm/xf-music-player@latest/plugin/sakura/sakura.min.js"></script>
-```
+## 当前版本更新 · 1.0.7
 
-### Browser requirements
+- **生命周期修复**：清理销毁后的旧订阅、音频和交互任务，避免旧控制器及过期回调影响新实例，正常取消请求不再误报错误。
+- **音频链路修复**：修复关闭可视化后复用已绑定 Web Audio 的媒体元素导致无声的问题。
+- **渲染兼容改进**：IIFE/ESM 按 ES2020 构建，转换依赖中的逻辑赋值与类字段；云端歌单失败、超时或为空时仍显示播放器及错误提示，首次挂载不重复请求失败接口。
+- **交互与资源优化**：减少歌单重复计算、暂停屏外加载动画、合并拖动更新，修复滚动空转与波形额外丢帧，使用 Howler core 精简未使用功能。
+- **iOS 音量提示**：点击音量控件时提示使用设备音量键或控制中心，支持中英文并限制连续提示；其他播放操作保持原行为。
 
-The player requires Web Components, Shadow DOM, Promise, Symbol, and HTML5 Audio. Internet Explorer, Edge Legacy, and older WebViews or Safari versions without these capabilities are not supported. Use `plugin/ie-out/index.js` when an early compatibility redirect is required.
+## 使用说明
+
+- 运行环境需要 Web Components、Shadow DOM、HTML5 Audio、Promise、Symbol、BigInt 等现代浏览器能力。生产包的 ES2020 转换不等于为所有旧浏览器补齐运行时 API。
+- 浏览器自动播放策略可能要求先进行用户交互。iOS / iPadOS 音量由系统控制。
+- 记忆播放保存当前歌曲及其进度等状态，不为歌单中每首歌曲分别保存历史进度。
+- 内置云端首屏请求等待超过 2 秒会提示加载中；超过 10 秒或请求失败时显示错误及空歌单播放器。之后可更换 `apiUrl` 或调用 `setPlaylist()` 恢复。
+- 本文示例中的业务接口和音频路径需要由接入项目提供。更多配置及在线预览见[接入文档](https://musicplayer.xfyun.club/docs/)和[在线调试](https://musicplayer.xfyun.club/debug/)。
+
+## 发布包与可选插件
+
+| 文件 | 用途 |
+| --- | --- |
+| `README.md` / `README.en.md` | 默认中文文档 / 英文文档。 |
+| `music-player.min.js` | 直接通过 `<script>` 加载的 IIFE 产物。 |
+| `music-player.esm.js` / `index.d.ts` | ESM 入口 / TypeScript 声明。 |
+| `old-music-player.min.js` | 旧版调用方式兼容入口。 |
+| `plugin/ie-out/index.js` | 旧浏览器检测与升级引导；放在主播放器脚本之前。 |
+| `plugin/sakura/sakura.min.js` | 可独立加载的樱花飘落效果。 |
+
+[Read this document in English →](./README.en.md)

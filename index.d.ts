@@ -251,3 +251,5 @@ export interface AudioFileResult {
 }
 export function readAudioMetadata(input: Blob | Uint8Array | ArrayBuffer): Promise<AudioMetadata>
 export function readAudioFile(file: File): Promise<AudioFileResult>
+
+export default MusicPlayer

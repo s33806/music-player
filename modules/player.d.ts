@@ -1,0 +1,2 @@
+export { MusicPlayer } from '../index.js'
+export type { LocaleType, MusicPlayerMode, MusicPlayerEnvironment, MusicPlayMode, LyricItem, SongInfo, MusicAudioProviderContext, MusicApiResponse, MusicSongListPayload, MusicAudioProvider, MusicPlayerAttributes, MusicPlayerElement, MusicPlayerPropertyChanges, MusicPlayerHooks, CreateMusicPlayerOptions, DestroyMusicPlayerOptions, MusicPlaybackState, MusicPlayerStoreState, MusicPlayerStoreApi } from '../index.js'

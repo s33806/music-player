@@ -2,9 +2,11 @@
 
 **简体中文** · [English](./README.en.md)
 
+[按需加载接入指南：npm、Vue、浏览器与部署](./ESM-GUIDE.md)
+
 基于 Web Components 的 HTML5 音乐播放器。既能通过一个 `<script>` 接入普通网页，也能作为 ESM 模块用于 Vue、React 等项目；播放器样式通过 Shadow DOM 隔离。
 
-当前版本：`1.0.7`。
+当前版本：`1.0.8`。
 
 [官网](https://musicplayer.xfyun.club) · [接入文档](https://musicplayer.xfyun.club/docs/) · [在线调试](https://musicplayer.xfyun.club/debug/) · [GitHub](https://github.com/s33806/music-player) · [Gitee](https://gitee.com/xfwlclub/xf-MusicPlayer/)
 
@@ -56,7 +58,10 @@ npm install xf-music-player
 在浏览器客户端执行；将 `/audio/example.mp3` 替换为项目中实际存在的音频地址。
 
 ```ts
-import { MusicPlayer } from 'xf-music-player'
+import MusicPlayer from 'xf-music-player'
+import 'xf-music-player/modules/lyrics'
+import 'xf-music-player/modules/themes'
+// import 'xf-music-player/modules/visualizer'
 
 let player = new MusicPlayer({
   language: 'zh',
@@ -78,13 +83,15 @@ let player = new MusicPlayer({
 })
 ```
 
-`language` 属于构造参数；`theme`、`playlist`、`apiUrl` 等配置放在 `attributes` 中。Nuxt、Next.js 等 SSR 项目应在客户端生命周期中使用 `await import('xf-music-player')`，并在卸载时销毁实例。
+`language` 属于构造参数；`theme`、`playlist`、`apiUrl` 等配置放在 `attributes` 中。删除不需要的功能导入；仅导入模块不创建播放器。Vue SPA 与 SSR 的生命周期处理分别见下方。
+
+npm / ESM 根入口现在只提供播放核心；歌词、预设主题与可视化由显式模块导入启用。根入口的元数据命名导出继续在首次调用 `readAudioMetadata` 或 `readAudioFile` 时加载解析器。旧接入需要按下方迁移说明补齐模块导入与实例创建。HTML / CDN 的 `music-player.min.js` 仍是原有完整单文件，其 API 与自动挂载行为保持原状。
 
 ## 功能示例
 
 ### 音频可视化与主题
 
-以下配置和自定义接口示例沿用上面的 `player` 实例。
+以下配置和自定义接口示例沿用上面的 `player` 实例。要使用可视化，先在上方创建实例前启用 `import 'xf-music-player/modules/visualizer'`，再配置 `audioVisualizer: true`。
 
 ```ts
 player.setConfig({
@@ -139,7 +146,9 @@ player.setConfig({
 这是另一种独立的创建方式，适合文件选择器传入的 `File`。先销毁页面上已有的播放器，再调用它。
 
 ```ts
-import { MusicPlayer, readAudioFile } from 'xf-music-player'
+import MusicPlayer, { readAudioFile } from 'xf-music-player'
+import 'xf-music-player/modules/lyrics'
+import 'xf-music-player/modules/themes'
 
 export async function createFilePlayer(file: File) {
   const loaded = await readAudioFile(file)
@@ -165,6 +174,8 @@ export async function createFilePlayer(file: File) {
 在文件选择事件中调用 `const filePlayer = await createFilePlayer(file)`；业务结束时执行 `await filePlayer.destroy()`。示例在销毁后释放音频和封面的临时 URL，并关闭不适合跨页面恢复的 Blob 歌曲记忆。
 
 只需读取信息时，使用 `readAudioMetadata(file)`，无需创建临时 URL。解析支持与播放解码是两回事：尤其 AIFF 的实际播放取决于浏览器编码支持；播放器未内置转码器。普通云端播放不会额外下载整首音频扫描标签。
+
+根入口 `readAudioFile` / `readAudioMetadata` 的正常加载路径与公开 API 保持不变，首次解析等待配套分块，成功后复用。解析模块或内部格式分块导入失败时，本次调用仍 reject 并保留 `cause`；网络或资源恢复后，业务下一次显式调用会加载随包发布、文件名带哈希的自包含 `metadata-recovery` 备用模块，无需先刷新页面，也不会自动循环重试。并发调用共享备用加载，成功后复用；无效文件和普通解析错误不触发备用下载。备用模块本身加载失败时仍返回错误并清理应用层加载 Promise；Chrome 可能缓存该备用 URL 的失败，资源修复后同页重试仍失败时需手动刷新，不保证无限次同页恢复。独立静态 `modules/metadata` 入口保留原行为，不使用根入口的备用恢复。直接静态托管时，将完整 `modules/`（含 `modules/chunks/` 中的备用模块）与 ESM 入口一起发布。普通播放不下载解析器或备用模块，解析加载失败不影响普通播放；IIFE 保持原状。
 
 ### 播放控制与页面卸载
 
@@ -193,7 +204,15 @@ async function recreatePlayer() {
 
 销毁后的旧控制器应由新实例替代；`mount()` 用于挂载已有元素，不用于重建已销毁的播放器。SPA 路由接入还应取消已退出页面的异步初始化，避免快速切页时重复创建。
 
-## 当前版本更新 · 1.0.7
+## 当前版本更新 · 1.0.8
+
+- **ESM 模块化**：默认只加载播放核心，歌词、预设主题、音频可视化通过 `modules/lyrics`、`modules/themes`、`modules/visualizer` 静态按需导入。
+- **元数据延迟加载**：根入口首次调用 `readAudioMetadata` / `readAudioFile` 时加载解析模块，普通 URL 歌单播放不加载解析器，后续调用复用已加载模块。独立静态 `modules/metadata` 入口随导入加载，不属于此延迟路径。
+- **减少初始资源**：未选择的可选功能不进入基础加载链路；节省量取决于所选功能和应用打包，不预设比例。
+
+旧 npm / ESM 用户需显式引入所需功能并创建实例；可视化需导入模块且设置 `audioVisualizer: true`。普通 `music-player.min.js` 继续完整单文件接入。示例和完整 `modules/chunks/` 部署要求见[生产接入指南](./ESM-GUIDE.md)。
+
+### 延续的 1.0.7 改进
 
 - **生命周期修复**：清理销毁后的旧订阅、音频和交互任务，避免旧控制器及过期回调影响新实例，正常取消请求不再误报错误。
 - **音频链路修复**：修复关闭可视化后复用已绑定 Web Audio 的媒体元素导致无声的问题。
@@ -214,10 +233,119 @@ async function recreatePlayer() {
 | 文件 | 用途 |
 | --- | --- |
 | `README.md` / `README.en.md` | 默认中文文档 / 英文文档。 |
-| `music-player.min.js` | 直接通过 `<script>` 加载的 IIFE 产物。 |
-| `music-player.esm.js` / `index.d.ts` | ESM 入口 / TypeScript 声明。 |
+| `music-player.min.js` | 直接通过 `<script>` 加载的完整单文件 IIFE 产物。 |
+| `music-player.esm.js` / `index.d.ts` | 核心 ESM 入口 / TypeScript 声明（含默认导出）。 |
+| `modules/` | 可选功能入口与对应类型声明。 |
+| `modules/chunks/` | `modules/` 内的 ESM 配套分块，包含按需加载的元数据解析功能；需要完整部署。 |
 | `old-music-player.min.js` | 旧版调用方式兼容入口。 |
 | `plugin/ie-out/index.js` | 旧浏览器检测与升级引导；放在主播放器脚本之前。 |
 | `plugin/sakura/sakura.min.js` | 可独立加载的樱花飘落效果。 |
+
+### 手动选择 ESM 模块
+
+npm 根入口与 `music-player.esm.js` 默认导出播放核心，保留必要控件、歌单、记忆播放和中性基础样式。仅导入入口不会扫描已有标签、创建实例、挂载或播放；由业务显式执行 `new MusicPlayer()`，构造后的挂载行为仍沿用原实例 API。
+
+```js
+import MusicPlayer from 'xf-music-player'
+import 'xf-music-player/modules/lyrics'
+import 'xf-music-player/modules/themes'
+// import 'xf-music-player/modules/visualizer'
+
+const player = new MusicPlayer({
+  attributes: {
+    mode: 'cloud',
+    apiUrl: '/api/music/playlist', // 替换为实际歌单接口
+    theme: 'xf-original-theme',
+    isAutoPopup: true,
+    autoplay: false,
+    audioVisualizer: false
+  }
+})
+```
+
+- 删除不需要的功能 `import` 即可。所需模块必须在 `new MusicPlayer()` **之前**引入；可视化还需要 `audioVisualizer: true`。本阶段不支持运行中补挂、卸载或按实例隔离功能。
+- 默认导出、原有 `import { MusicPlayer } from 'xf-music-player'` 和 `xf-music-player/modules/player` 的命名导出指向同一个构造器；模块复用同一 Store、SoundManager 和功能注册状态，同页只保留一个活跃宿主。
+- 未引入 `lyrics` 时不加载歌词解析器、布局与主体 CSS，不请求外链歌词，也不运行歌词取色与显示逻辑。未引入 `visualizer` 时不加载 Canvas 波形实现，不激活 analyser 或可视化音频 CORS 路由；即使配置为 `true` 也保留普通播放与进度条。
+- 未引入 `themes` 时保留中性基础配色；引入后使用原有 `theme` 配置，自定义 CSS 仍最后覆盖主题。少量生命周期编排与音频分析桥接仍复用共享核心，不复制播放器。
+- **静态选择与延迟下载不同**：以上静态导入会进入应用的初始依赖图，删除导入才排除功能；它们不会等用户点击后再下载。根入口的 `readAudioFile` / `readAudioMetadata` 命名导出仍使用惰性转发，首次调用才加载解析器。
+
+需要独立引入元数据 API 时使用静态子入口；这会将解析入口纳入初始依赖图，各音频格式的内部加载方式不变：
+
+```js
+import { readAudioFile, readAudioMetadata } from 'xf-music-player/modules/metadata'
+
+const loaded = await readAudioFile(file) // file 来自文件选择器
+player.setPlaylist([loaded.song])
+// 只读标签：await readAudioMetadata(file)
+// 停止使用音频后：await player.destroy(); loaded.dispose();
+```
+
+### 旧 npm / ESM 接入迁移
+
+这是有意的根入口行为变更，不是旧接入的无感兼容：旧根入口曾注册完整界面功能并自动挂载默认标签；现在需要显式引入歌词、主题、可视化模块，并执行 `new MusicPlayer()`。原有命名导出与实例 API 保留，已有 `/modules/*` 子路径继续有效。仅依赖页面 `<xf-music-player>` 标签的 ESM 使用方也要补上实例创建，或继续使用原来的普通脚本接入。
+
+`music-player.min.js` 的单文件 IIFE 接入、全局 API、完整功能及默认标签自动挂载行为保持原状。ESM 没有新增 `/core` 或 `/auto` 入口。
+
+### Vue 3 SPA
+
+建议固定放在 `App.vue`，避免共享播放器随路由反复创建。普通 SPA 在 `<script setup>` 顶部静态引入，在客户端挂载时显式创建：
+
+```vue
+<script setup lang="ts">
+import { onMounted, onBeforeUnmount } from 'vue'
+import MusicPlayer from 'xf-music-player'
+import 'xf-music-player/modules/lyrics'
+import 'xf-music-player/modules/themes'
+
+let player: MusicPlayer | undefined
+
+onMounted(() => {
+  player = new MusicPlayer({
+    attributes: {
+      mode: 'cloud',
+      apiUrl: '/api/music/playlist',
+      theme: 'xf-original-theme',
+      isAutoPopup: true,
+      autoplay: false
+    }
+  })
+})
+
+onBeforeUnmount(() => {
+  player?.destroy().catch(error => console.error('播放器销毁失败', error))
+})
+</script>
+```
+
+Vue 不会等待异步销毁完成；如果业务确实需要替换实例，应由业务串行等待 `await oldPlayer.destroy()` 再创建新实例。SSR 是另一种场景：在仅客户端执行的生命周期内动态导入根入口和所选模块，等待全部所需导入完成后再创建，并检查组件是否已经退出；不要在服务器端执行这些浏览器模块。普通 SPA 主示例仍使用上面的静态导入。
+
+### 直接浏览器 ESM
+
+普通 HTML 使用实际文件 URL，不直接使用未经构建工具或 import map 解析的 npm 裸包名。例如在与构建入口同级的 HTML 中：
+
+```html
+<script type="module">
+  import MusicPlayer from './music-player.esm.js';
+  import './modules/lyrics.js';
+  import './modules/themes.js';
+
+  const player = new MusicPlayer({
+    attributes: { mode: 'cloud', apiUrl: '/api/music/playlist', autoplay: false }
+  });
+</script>
+```
+
+仓库内的 `examples/esm-lazy.html` 使用 `../dist/` 相对路径。通过 HTTP(S) 运行，并保留同一次构建的入口、完整 `modules/`（含 `modules/chunks/`）与声明文件；不要双击 `file://` 打开。
+
+### ESM 部署注意事项
+
+分块归并到 `modules/chunks/` 仅调整产物路径，不改变按需加载行为，也不代表加载提速。
+
+手动模块使用固定入口文件名，必须整套部署到固定版本目录并原子切换目录；不要在在线目录内逐文件覆盖。仅保留旧哈希分块不足以保护缓存入口对 `modules/*.js` 固定路径的引用。构建脚本只是合并本地制品，不是线上原子发布。
+
+- npm 安装时保留整个发布包，由 Vite、Webpack 或 Rollup 等应用构建工具处理分块，并部署应用生成的完整产物。HTML 直接静态托管时，完整上传 `music-player.esm.js` 与 `modules/`（含 `modules/chunks/`），保持相对目录关系；只上传入口会导致加载失败。完整部署分块不等于浏览器一次下载全部分块，实际请求仍由导入关系和功能调用决定。
+- 使用固定 npm 版本或版本化静态目录；在新版本目录上传并校验完整产物后再切换目录。旧页面可能仍持有缓存的入口，历史部署的 `esm-chunks/` 随旧版本整套资源保留到对应缓存过期，新包不携带该旧目录。
+- 回滚时恢复同一构建的 ESM 入口与全部分块；不要将新入口与旧分块混用。跨域静态托管需正确的 JavaScript MIME、CORS 与 CSP 配置。
+- 源码仓库内，`pnpm build` 构建完整发布目录；已有完整 `dist/` 时，`pnpm build:esm` 只更新 ESM 及其分块，保留原有 IIFE 文件。构建不会自动发布到 npm 或生产站点。
 
 [Read this document in English →](./README.en.md)
